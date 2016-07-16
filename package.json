@@ -2,19 +2,21 @@
   "name": "raunbot",
   "version": "1.0.0",
   "description": "Alerts you when there are hi-risk edits on Wikipedia",
-  "main": "index.js",
+  "main": "app.js",
   "dependencies": {
     "active-x-obfuscator": "0.0.2",
     "asyncawait": "^1.0.6",
     "botbuilder": "^3.0.1",
+    "dotenv": "^2.0.0",
     "restify": "^4.1.1",
-    "socket.io-client": "^0.9.1",
+    "socket.io-client": "0.9.1",
     "sync-request": "^3.0.1"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
-  "author": "",
+  "author": "Kenrick",
   "license": "ISC"
 }
