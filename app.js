@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var request = Promise.promisifyAll(require('request'));
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
+require('dotenv').config();
 
 //=========================================================
 // Bot Setup

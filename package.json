@@ -9,6 +9,7 @@
     "bluebird": "^3.4.1",
     "botbuilder": "^3.0.1",
     "dotenv": "^2.0.0",
+    "request": "^2.73.0",
     "restify": "^4.1.1",
     "socket.io-client": "0.9.1"
   },
@@ -18,5 +19,9 @@
     "start": "node app.js"
   },
   "author": "Kenrick",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kenrick95/raunbot.git"
+  }
 }
