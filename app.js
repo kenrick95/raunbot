@@ -6,7 +6,7 @@ var Promise = require('bluebird');
 var request = Promise.promisifyAll(require('request'));
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
-require('dotenv').config();
+require('dotenv').config({silent: true});
 
 //=========================================================
 // Bot Setup
@@ -14,7 +14,7 @@ require('dotenv').config();
 
 // Setup Restify Server
 var server = restify.createServer();
-var port = parseInt(process.env.port, 10) || parseInt(process.env.PORT, 10) || 3978;
+var port = process.env.PORT || 3978;
 server.listen(port, function () {
    console.log('%s listening to %s', server.name, server.url); 
 });
