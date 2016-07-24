@@ -26,3 +26,5 @@ Currently, only those wikis listed at ORES are supported by this chat bot, [see 
 - [Facebook Messenger](https://m.me/raunbot)
 - [Skype](https://join.skype.com/bot/047f069f-206b-4311-b61a-84c4a5a0f92a)
 - [Telegram](https://telegram.me/raunbot)
+
+![Raunbot on Facebook Messenger](https://cloud.githubusercontent.com/assets/3090380/17081568/d959e112-5190-11e6-9783-c042ac5dd2c6.PNG)
