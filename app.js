@@ -88,16 +88,16 @@ function subscribe(wiki, address) {
 }
 function unsubscribe(wiki, address) {
     if (wiki in alerts) {
-        var deleteKey = null;
+        var deleteIndex = null;
         for (var key in alerts[wiki]) {
             if (alerts[wiki][key].user.id === address.user.id
                 && alerts[wiki][key].channelId === address.channelId) {
-                deleteKey = key;
+                deleteIndex = key;
                 break;
             }
         }
-        if (deleteKey in alerts[wiki]) {
-            delete alerts[wiki][deleteKey];
+        if (deleteIndex in alerts[wiki]) {
+            alerts[wiki].splice(deleteIndex, 1);
             return wiki;
         }
     }
@@ -111,6 +111,7 @@ socket.on('connect', function () {
 
 socket.on('change', async(function (data) {
     if (data.wiki in alerts && alerts[data.wiki].length > 0) {
+
         var score = await(getOresScore(data));
 
         if (score >= 0.5) {
@@ -146,7 +147,10 @@ var getOresScore = async(function (data) {
 
     var res = await(request.getAsync('https://ores.wikimedia.org/v2/scores/' + wiki + '/reverted/' + revisionId));
     var obj = JSON.parse(res.body);
-    var score = obj.scores[wiki].reverted.scores[revisionId].probability.true;
+    var score = -1;
+    if (!!obj.scores[wiki].reverted.scores[revisionId].probability) {
+        score = obj.scores[wiki].reverted.scores[revisionId].probability.true;
+    }
     oresScoreCache[wiki][revisionId] = score;
 
     return score;
