@@ -24,18 +24,24 @@ var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-var bot = new builder.UniversalBot(connector);
-
 server.post('/raunbot/api/messages', connector.listen());
 
-//=========================================================
-// Bots Dialogs
-//=========================================================
+var bot = new builder.UniversalBot(connector);
+var intents = new builder.IntentDialog();
+bot.dialog('/', intents);
+
 var alerts = {};
 var oresScoreCache = {};
-// https://ores.wikimedia.org/v2/scores/idwiki/reverted/123456
 
-bot.dialog('/', [
+intents.matches(/^unsubscribe/i, [
+    function (session, args, next) {
+        var wiki = session.userData.wiki;
+        session.send('You have stopped receiving alerts for %s.', unsubscribe(wiki, session.message.address));
+        delete session.userData.wiki;
+    }
+]);
+
+intents.onDefault([
     function (session, args, next) {
         if (!session.userData.wiki) {
             session.beginDialog('/subscribe');
@@ -49,7 +55,8 @@ bot.dialog('/', [
 
         var found = false;
         for (var key in alerts[wiki]) {
-            if (alerts[wiki][key].user.id === session.message.address.user.id) {
+            if (alerts[wiki][key].user.id === session.message.address.user.id
+                && alerts[wiki][key].channelId === session.message.address.channelId) {
                 found = true;
                 break;
             }
@@ -79,6 +86,24 @@ function subscribe(wiki, address) {
     }
     alerts[wiki].push(address);
 }
+function unsubscribe(wiki, address) {
+    if (wiki in alerts) {
+        var deleteKey = null;
+        for (var key in alerts[wiki]) {
+            if (alerts[wiki][key].user.id === address.user.id
+                && alerts[wiki][key].channelId === address.channelId) {
+                deleteKey = key;
+                break;
+            }
+        }
+        if (deleteKey in alerts[wiki]) {
+            delete alerts[wiki][deleteKey];
+            return wiki;
+        }
+    }
+    return null;
+}
+
 
 socket.on('connect', function () {
      socket.emit('subscribe', '*');
