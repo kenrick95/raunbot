@@ -32,10 +32,23 @@ bot.dialog('/', intents);
 
 var alerts = {};
 var oresScoreCache = {};
+var oresWikis = [];
+
+var getWikisAvailable = async(function() {
+    var res = await(request.getAsync('https://ores.wikimedia.org/v2/scores/'));
+    var obj = JSON.parse(res.body);
+    for (var wiki in obj.scores) {
+        if (!!obj.scores[wiki].reverted && !(wiki in oresWikis)) {
+            oresWikis.push(wiki);
+        }
+    }
+    console.log("ORES supported wikis are: %s", oresWikis);
+});
+getWikisAvailable();
 
 intents.matches(/^unsubscribe/i, [
     function (session, args, next) {
-        var wiki = session.userData.wiki;
+        var wiki = session.userData.wiki.toLowerCase();
         session.send('You have stopped receiving alerts for %s.', unsubscribe(wiki, session.message.address));
         delete session.userData.wiki;
     }
@@ -50,19 +63,20 @@ intents.onDefault([
         }
     },
     function (session, results) {
-        var wiki = session.userData.wiki;
-        session.send('Hello, you will be receiving alerts for %s!', wiki);
+        var wiki = session.userData.wiki.toLowerCase();
 
-        var found = false;
+        session.send('Hello, you will be receiving alerts for %s!\nReply with "unsubscribe" to stop receiving alerts.', wiki);
+
+        var userHasSubscribed = false;
         for (var key in alerts[wiki]) {
             if (alerts[wiki][key].user.id === session.message.address.user.id
                 && alerts[wiki][key].channelId === session.message.address.channelId) {
-                found = true;
+                userHasSubscribed = true;
                 break;
             }
         }
 
-        if (!found) {
+        if (!userHasSubscribed) {
             subscribe(wiki, session.message.address)
         }
     }
@@ -73,12 +87,23 @@ bot.dialog('/subscribe', [
         builder.Prompts.text(session, 'Hi! Which wiki to watch on?');
     },
     function (session, results) {
-        var wiki = results.response;
-        session.userData.wiki = wiki;
-        subscribe(wiki, session.message.address);
-        session.endDialog();
+        var wiki = results.response.toLowerCase();
+
+        if (isWikiValid(wiki)) {
+            session.userData.wiki = wiki;
+            subscribe(wiki, session.message.address);
+            session.endDialog();
+        } else {
+            session.send("Sorry, that wiki (%s) is not supported by ORES. Please try another one.", wiki);
+            session.replaceDialog('/subscribe');
+        }
+        
     }
 ]);
+
+function isWikiValid(wiki) {
+    return oresWikis.indexOf(wiki) > -1;
+}
 
 function subscribe(wiki, address) {
     if (!(wiki in alerts)) {
